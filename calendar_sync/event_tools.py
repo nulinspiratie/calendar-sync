@@ -1,5 +1,5 @@
 def events_are_same(event1, event2, verbose=False):
-    for attr in ["summary", "begin", "end", "description", "location", "status"]:
+    for attr in ["name", "begin", "end", "description", "location", "status"]:
         event1_attr = getattr(event1, attr)
         event2_attr = getattr(event2, attr)
         if not event1_attr and not event2_attr:
@@ -10,8 +10,8 @@ def events_are_same(event1, event2, verbose=False):
             event2_attr = event2_attr[:8192]
 
         if attr in ["begin", "end"]:
-            event1_attr = event1_attr.astimezone()
-            event2_attr = event2_attr.astimezone()
+            event1_attr = event1_attr.naive.astimezone()
+            event2_attr = event2_attr.naive.astimezone()
 
         if event1_attr != event2_attr:
             if verbose:
@@ -54,4 +54,4 @@ def print_events(*events):
         events = events[0]
 
     for event in events:
-        print(f"{event.begin} - {event.end} | {event.summary}")
+        print(f"{event.begin} - {event.end} | {event.name}")

@@ -3,7 +3,7 @@ from datetime import datetime
 import logging
 
 from calendar_sync.config_tools import get_root_folder
-from ics import Event
+from ics.event import Event
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -99,7 +99,7 @@ class GoogleCalendar(BaseWriteCalendar):
             .insert(calendarId=self.calendar_id, body=google_event)
             .execute()
         )
-        logger.info(f"Added event {event.begin} | {event.summary}")
+        logger.info(f"Added event {event.begin} | {event.name}")
 
     def remove_event(self, event):
         if isinstance(event, Event):
@@ -111,7 +111,7 @@ class GoogleCalendar(BaseWriteCalendar):
             calendarId=self.calendar_id, eventId=google_event["id"]
         ).execute()
 
-        logger.info(f"Removed event {event.begin} | {event.summary}")
+        logger.info(f"Removed event {event.begin} | {event.name}")
 
     def remove_all_events(self):
         self.retrieve_events(max_results=500)
