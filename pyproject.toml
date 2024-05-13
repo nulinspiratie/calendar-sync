@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "calendar_sync"
+version = "0.1.0"
+description = "Synchronization tool for Outlook and Google Calendar"
+authors = ["Serwan Asaad <serwan.asaad@quantum-machines.co>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+O365 = "^2.0.34"
+pytz = "^2021.3"
+ics = "^0.7.2"
+google-api-python-client = "^2.129.0"
+google-auth-httplib2 = "^0.2.0"
+google-auth-oauthlib = "^1.2.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

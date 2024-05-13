@@ -1,0 +1,10 @@
+ics-py
+credentials.json
+token.json
+o365_token.txt
+playground
+__pycache__
+.DS_Store
+config.toml
+.venv
+dist

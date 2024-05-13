@@ -1,0 +1,1 @@
+Synchronizer from Outlook calendar to Google calendar
