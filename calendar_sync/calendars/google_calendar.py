@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 
 from calendar_sync.config_tools import get_root_folder
@@ -55,16 +55,16 @@ class GoogleCalendar(BaseWriteCalendar):
             token_path.write_text(creds.to_json())
         return creds
 
-    def retrieve_events(self, time_start=None, time_end=None, max_results=100):
-
+    def _retrieve_events_raw(self, time_start=None, time_end=None, max_results=100):
+        local_timezone = datetime.now().astimezone().tzinfo
         # Call the Calendar API
         if time_start is None:
-            time_start = datetime.now().astimezone().isoformat()
+            time_start = datetime.now().astimezone(local_timezone).isoformat()
         elif isinstance(time_start, datetime):
-            time_start = time_start.astimezone().isoformat()
+            time_start = time_start.astimezone(local_timezone).isoformat()
 
         if isinstance(time_end, datetime):
-            time_end = time_end.astimezone().isoformat()
+            time_end = time_end.astimezone(local_timezone).isoformat()
 
         events_result = (
             self._service.events()
@@ -81,8 +81,31 @@ class GoogleCalendar(BaseWriteCalendar):
         self._google_events = events_result.get("items", [])
 
         self.events = list(map(google_event_to_ics_event, self._google_events))
+
+        return self.events
+
+    def retrieve_events(self, time_start=None, time_end=None, max_results=100):
+        # Call the Calendar API
+        if time_start is None:
+            time_start = datetime.now()
+
+        # Get events starting earlier, and more results, then filter afterwards
+        # This ensures similar behaviour as other calendars
+        time_start_earlier = time_start - timedelta(days=1)
+
+        local_timezone = datetime.now().astimezone().tzinfo
+        time_start_earlier = time_start.astimezone(local_timezone)
+
+        self.all_events = self._retrieve_events_raw(
+            time_start=time_start_earlier,
+            time_end=time_end,
+            max_results=max_results + 100,
+        )
         logger.info(f"Retrieved {len(self.events)} events")
 
+        self.events = self.filter_events(
+            self.all_events, time_start, time_end, max_results
+        )
         return self.events
 
     def add_event(self, event):
@@ -99,7 +122,7 @@ class GoogleCalendar(BaseWriteCalendar):
             .insert(calendarId=self.calendar_id, body=google_event)
             .execute()
         )
-        logger.info(f"Added event {event.begin} | {event.name}")
+        logger.info(f"Added event {event.begin} | {event.summary}")
 
     def remove_event(self, event):
         if isinstance(event, Event):
@@ -111,7 +134,7 @@ class GoogleCalendar(BaseWriteCalendar):
             calendarId=self.calendar_id, eventId=google_event["id"]
         ).execute()
 
-        logger.info(f"Removed event {event.begin} | {event.name}")
+        logger.info(f"Removed event {event.begin} | {event.summary}")
 
     def remove_all_events(self):
         self.retrieve_events(max_results=500)

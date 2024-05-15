@@ -1,5 +1,9 @@
+from datetime import datetime
+
+
 def events_are_same(event1, event2, verbose=False):
-    for attr in ["name", "begin", "end", "description", "location", "status"]:
+    local_timezone = datetime.now().astimezone().tzinfo
+    for attr in ["summary", "begin", "end", "description", "location", "status"]:
         event1_attr = getattr(event1, attr)
         event2_attr = getattr(event2, attr)
         if not event1_attr and not event2_attr:
@@ -10,8 +14,8 @@ def events_are_same(event1, event2, verbose=False):
             event2_attr = event2_attr[:8192]
 
         if attr in ["begin", "end"]:
-            event1_attr = event1_attr.naive.astimezone()
-            event2_attr = event2_attr.naive.astimezone()
+            event1_attr = event1_attr.astimezone(local_timezone)
+            event2_attr = event2_attr.astimezone(local_timezone)
 
         if event1_attr != event2_attr:
             if verbose:
@@ -49,9 +53,11 @@ def compare_events(events1, events2):
     return (events_in_both, events_only_in_first, events_only_in_second)
 
 
-def print_events(*events):
+def print_events(*events, indent=0):
     if len(events) == 1 and isinstance(events[0], (list, tuple)):
         events = events[0]
 
     for event in events:
-        print(f"{event.begin} - {event.end} | {event.name}")
+        print(
+            f"{' ' * indent}{event.begin.isoformat()} - {event.end.isoformat()} | {event.summary}"
+        )

@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta, datetime
 
 from calendar_sync.calendars.ics_calendar import IcsCalendar
 from calendar_sync.calendars.google_calendar import GoogleCalendar
@@ -8,9 +9,15 @@ logger = logging.getLogger(__name__)
 
 
 def synchronize_outlook_to_google_calendar(
-    outlook_url: str, google_calendar_id: str, **events_query
+    outlook_url: str,
+    google_calendar_id: str,
+    timedelta: timedelta = None,
+    **events_query,
 ):
     logging.info("Synchronizing Outlook to Google Calendar")
+
+    if timedelta is not None:
+        events_query["time_start"] = datetime.now() + timedelta
 
     logging.info("Loading Outlook ICS calendar")
     outlook_calendar = IcsCalendar(url=outlook_url)

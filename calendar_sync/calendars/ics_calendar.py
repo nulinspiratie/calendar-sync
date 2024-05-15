@@ -15,39 +15,25 @@ class IcsCalendar(BaseCalendar):
     def __init__(self, url):
         self.url = url
         self._calendar = None
+        self.all_events = None
         self.events = None
+        self._ics_text = None
 
     def retrieve_events(self, time_start=None, time_end=None, max_results=100):
         if time_start is None:
             time_start = datetime.now()
 
-        ics_text = requests.get(self.url).text
-        ics_text = ics_text.replace(
+        self._ics_text = requests.get(self.url).text
+        ics_text = self._ics_text.replace(
             "(UTC+01:00) Brussels, Copenhagen, Madrid, Paris", "Europe/Copenhagen"
         )
         self._calendar = ics.Calendar(ics_text)
-        self.events = list(self._calendar.events)
 
-        filtered_events = []
-        for event in self.events:
-            if len(filtered_events) >= max_results:
-                break
-            if time_start is not None:
-                begin = event.begin
-                if isinstance(event.begin, Arrow):
-                    begin = begin.naive
-                if begin.astimezone() < time_start.astimezone():
-                    continue
-            if time_end is not None:
-                end = event.end
-                if isinstance(event.end, Arrow):
-                    end = end.naive
-                if end.astimezone() > time_end.astimezone():
-                    continue
-            # if time_end is not None and event.end.astimezone() > time_end.astimezone():
-            # continue
-            filtered_events.append(event)
+        self.all_events = list(self._calendar.events)
+        logger.info(f"Retrieved {len(self.all_events)} events")
 
-        logger.info(f"Retrieved {len(filtered_events)} events")
-
-        return filtered_events
+        self.events = self.filter_events(
+            self.all_events, time_start, time_end, max_results
+        )
+        logger.info(f"Filtered to {len(self.events)} events")
+        return self.events

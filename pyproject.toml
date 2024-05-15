@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 pytz = "^2021.3"
-ics = "^0.7.2"
+ics = { git = "https://github.com/ics-py/ics-py.git", rev = "e217aae" }
 google-api-python-client = "^2.129.0"
 google-auth-httplib2 = "^0.2.0"
 google-auth-oauthlib = "^1.2.0"

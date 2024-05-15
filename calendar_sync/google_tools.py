@@ -47,7 +47,7 @@ def google_event_to_ics_event(google_event):
     timezone = pytz.timezone(google_event["end"]["timeZone"])
 
     if "summary" in google_event:
-        attrs["name"] = google_event["summary"]
+        attrs["summary"] = google_event["summary"]
     if "id" in google_event:
         attrs["uid"] = google_event["id"]
     if "description" in google_event:
@@ -68,12 +68,13 @@ def google_event_to_ics_event(google_event):
 
 
 def ics_event_to_google_event(ics_event):
+    local_timezone = datetime.now().astimezone().tzinfo
     google_event = {
-        "start": {"dateTime": ics_event.begin.naive.astimezone().isoformat()},
-        "end": {"dateTime": ics_event.end.naive.astimezone().isoformat()},
+        "start": {"dateTime": ics_event.begin.astimezone(local_timezone).isoformat()},
+        "end": {"dateTime": ics_event.end.astimezone(local_timezone).isoformat()},
     }
-    if ics_event.name:
-        google_event["summary"] = ics_event.name
+    if ics_event.summary:
+        google_event["summary"] = ics_event.summary
     if ics_event.description:
         google_event["description"] = ics_event.description
     if ics_event.location:
