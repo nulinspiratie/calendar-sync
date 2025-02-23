@@ -1,22 +1,30 @@
-[tool.poetry]
-name = "calendar_sync"
+[project]
+name = "calendar-sync"
 version = "0.1.0"
 description = "Synchronization tool for Outlook and Google Calendar"
-authors = ["Serwan Asaad <serwan.asaad@quantum-machines.co>"]
 readme = "README.md"
+authors = [
+    { name = "Serwan Asaad", email = "serwan.asaad@quantum-machines.co" },
+]
+requires-python = ">=3.9"
+dependencies = [
+    "google-api-python-client>=2.161.0",
+    "google-auth-httplib2>=0.2.0",
+    "google-auth-oauthlib>=1.2.1",
+    "pytz>=2025.1",
+    "ics @ git+https://github.com/ics-py/ics-py.git@e217aae",
+    "arrow>=1.3.0",
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-pytz = "^2021.3"
-ics = { git = "https://github.com/ics-py/ics-py.git", rev = "e217aae" }
-google-api-python-client = "^2.129.0"
-google-auth-httplib2 = "^0.2.0"
-google-auth-oauthlib = "^1.2.0"
-
-
-[tool.poetry.group.dev.dependencies]
-ipykernel = "^6.29.4"
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "pyperclip>=1.9.0",
+]
