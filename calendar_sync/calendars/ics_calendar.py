@@ -27,6 +27,7 @@ class IcsCalendar(BaseCalendar):
         ics_text = self._ics_text.replace(
             "(UTC+01:00) Brussels, Copenhagen, Madrid, Paris", "Europe/Copenhagen"
         )
+        ics_text = ics_text.replace("Customized Time Zone", "Europe/Copenhagen")
         self._calendar = ics.Calendar(ics_text)
 
         self.all_events = list(self._calendar.events)
